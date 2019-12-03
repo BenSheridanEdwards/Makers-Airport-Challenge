@@ -10,6 +10,3 @@ class Weather
     FORECASTS.sample
   end
 end
-
-
-
