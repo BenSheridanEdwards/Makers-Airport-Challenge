@@ -1,91 +1,85 @@
 require 'airport'
-require 'plane'
-require 'weather_spec'
 
 describe Airport do 
 
   let(:airport) { Airport.new }
-  let(:airport_with_plane) { Airport.new(hanger: [plane]) }
-  let(:plane) { Plane.new }
-  let(:weather) { Weather.new }
- 
-  context "when a plane is landing" do
+  let(:plane) { double :plane }
+  let(:weather) { double :weather }
 
-    it "instructs the plane to land" do
+  context "taking off in clear weather conditions" do 
+    before(:each) do 
       allow(airport).to receive(:stormy?).and_return(false)
-      expect(airport).to receive(:land)
+      allow(plane).to receive(:landed).and_return(true)
+      allow(plane).to receive(:in_the_air).and_return(true)
       airport.land(plane)
     end
 
-    it "will have a plane in it's hanger after landing" do
+    it "should allow a plane in the hanger to take off" do
+      expect(airport.take_off(plane)).to eq(plane)
+    end
+
+    it "should not raise an error when a plane attempts to take off" do 
+      expect { airport.take_off(plane) }.not_to raise_error
+    end
+  end
+
+  context "landing in clear weather conditions" do 
+    before(:each) do
       allow(airport).to receive(:stormy?).and_return(false)
+      allow(plane).to receive(:in_the_air).and_return(true)
+      allow(plane).to receive(:landed).and_return(true)
+    end
+
+    it "should allow a plane to land and park in the hanger" do 
       airport.land(plane)
       expect(airport.hanger).to include plane
     end
+
+    it "should raise an error if the user tries to land the same plane twice" do
+      airport.land(plane)
+      message = 'That plane is already here'
+      expect { airport.land(plane) }.to raise_error message
+    end
   end
 
-  describe '#initialize' do 
-  
-    it "uses a given capacity and so returns a hanger count over the default capacity of 5" do
-      airport10 = Airport.new(Weather.new, 10)
-      allow(airport10).to receive(:stormy?).and_return(false)
-      6.times { airport10.land(Plane.new) }
-      expect(airport10.hanger.count).to eq(6)
-    end
-
-    it 'uses a default capacity when no input is given' do
-      expect(subject.capacity).to eq(Airport::DEFAULT_CAPACITY)
-    end
-
-  end
-
-  describe '#land' do
-  
-    it "should land a plane when weather conditions are good" do
+  context "landing in a full hanger in clear weather conditions" do 
+    before(:each) do
       allow(airport).to receive(:stormy?).and_return(false)
-      expect(airport.land(plane)).to eq([plane])
-    end 
+      allow(plane).to receive(:in_the_air).and_return(true)
+      allow(plane).to receive(:landed).and_return(true)
+    end
 
-    it "should not land a plane when weather conditions are stormy" do
-      allow(airport).to receive(:stormy?).and_return(true)
-      message = 'Stormy weather, abort landing!'
+    it "should raise an error if a plane tries to land when the hanger is over the default capacity" do
+      Airport::DEFAULT_CAPACITY.times { airport.land(double :plane, landed: true) }
+      message = 'Hanger full, abort landing!'
       expect { airport.land(plane) }.to raise_error message
     end
 
-    it "should not land a plane if the hanger is full" do 
-      allow(airport).to receive(:stormy?).and_return(false)
-      airport.capacity.times { airport.land(Plane.new) }
+    it "should raise an error if a plane tries to land when the hanger is over a given capacity" do
+      airport5 = Airport.new(:sunny, 5)
+      airport5.capacity.times { airport.land(double :plane, landed: true) }
       message = 'Hanger full, abort landing!'
-      expect { airport.land(Plane.new) }.to raise_error message
+      expect { airport.land(plane) }.to raise_error message
+    end 
+  end
+
+  context "when in stormy weather conditions" do
+    before(:each) do 
+    allow(airport).to receive(:stormy?).and_return(false)
+    allow(plane).to receive(:landed).and_return(true)
+    allow(plane).to receive(:in_the_air).and_return(true)
+    airport.land(plane)
+    allow(airport).to receive(:stormy?).and_return(true)
+    end
+
+    it "should raise an error if a plane tries to take off" do
+      message = "Stormy weather, cannot take off"
+      expect { airport.take_off(plane) }.to raise_error message
+    end
+
+    it "should raise an error if a plane tries to land" do
+      message = 'Stormy weather, abort landing!'
+      expect { airport.land(double :plane, landed: false) }.to raise_error message
     end
   end
-  
-  describe '#take_off' do
-
-    it "should not release a plane when weather conditions are stormy" do
-      allow(airport).to receive(:stormy?).and_return(false)
-      airport.land(plane)
-      allow(airport).to receive(:stormy?).and_return(true)
-      message = "Stormy weather, cannot take off" 
-      expect { airport.take_off(plane) }.to raise_error message
-    end 
-
-    it "should not raise an error if a plane attempts to take off after the storm has cleared" do
-      allow(airport).to receive(:stormy?).and_return(false)
-      airport.land(plane)
-      allow(airport).to receive(:stormy?).and_return(false)
-      expect { airport.take_off(plane) }.not_to raise_error
-    end
-
-    it "should release a plane in good weather conditions" do
-      allow(airport).to receive(:stormy?).and_return(false)
-      airport.land(plane)
-      expect(airport.take_off(plane)).to eq(plane)
-    end
- 
-  end 
-
-  it "should return true or false when stormy? is called" do
-	  expect(airport.weather.stormy?).to be(true).or be(false)
-	end 
 end
