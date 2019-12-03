@@ -6,7 +6,7 @@ describe Airport do
   let(:plane) { double :plane }
   let(:weather) { double :weather }
 
-  context "taking off in clear weather conditions" do 
+  context "taking off in sunny weather conditions" do 
     before(:each) do 
       allow(airport).to receive(:stormy?).and_return(false)
       allow(plane).to receive(:landed).and_return(true)
@@ -23,7 +23,7 @@ describe Airport do
     end
   end
 
-  context "landing in clear weather conditions" do 
+  context "landing in sunny weather conditions" do 
     before(:each) do
       allow(airport).to receive(:stormy?).and_return(false)
       allow(plane).to receive(:in_the_air).and_return(true)
@@ -42,7 +42,7 @@ describe Airport do
     end
   end
 
-  context "landing in a full hanger in clear weather conditions" do 
+  context "landing in a full hanger in sunny weather conditions" do 
     before(:each) do
       allow(airport).to receive(:stormy?).and_return(false)
       allow(plane).to receive(:in_the_air).and_return(true)
