@@ -71,16 +71,25 @@ I want to prevent landing when weather is stormy
 
 | Methods        | Description                                            |
 |----------------|--------------------------------------------------------|
-| | |
+| Airport.new | Creates a new instance of the airport class |
+| .land(plane)| Accepts a plane object as an argument and stores the plane in the hanger if the weather conditions are sunny, there is space in the hanger and that particular plane object hasn't already landed |
+| .take_off | Accepts a plane object as an argument and returns the plane if the weather conditions are sunny and the plane object is in the hanger |
+
 
 ### Plane
 
 | Methods        | Description                                            |
 |----------------|--------------------------------------------------------|
-| | |
+| Plane.new | Creates a new instance of the plane class |
+| .in_the_air | Sets the attribute of airborn to true | 
+| .landed | Sets the attribute of airborn to false |
+| .airborn?| Returns true is the plane is airborn |
+
 
 ### Weather
 
 | Methods        | Description                                            |
 |----------------|--------------------------------------------------------|
-| | |
+| Weather.new | Creates a new instance of the weather class |
+| .stormy? | Returns true is the weather conditions around the airport are stormy |
+| .forecast | randomly selects the weather conditions, with a 1/4 chance of it being stormy |
